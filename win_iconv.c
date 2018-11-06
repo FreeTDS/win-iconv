@@ -1309,8 +1309,12 @@ mbcs_mblen(csconv_t *cv, const uchar *buf, int bufsize)
 	else if (buf[0] >= 0x81 && buf[0] <= 0xFE &&
 		 bufsize >= 4 &&
 		 buf[1] >= 0x30 && buf[1] <= 0x39) len = 4;
-	else
+	else if (buf[0] < 0x81 || buf[0] > 0xFE)
+	    return seterror(EILSEQ);
+	else if (bufsize < 2 || (buf[1] >= 0x30 && buf[1] <= 0x39 && bufsize < 4))
 	    return seterror(EINVAL);
+	else
+	    return seterror(EILSEQ);
 	return len;
     }
     else
